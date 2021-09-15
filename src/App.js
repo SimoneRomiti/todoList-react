@@ -11,25 +11,30 @@ function App() {
   useEffect(() => {
     const newTodos = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
     console.log(newTodos);
-    setTodos(newTodos)
+    if(newTodos){
+      setTodos(newTodos)
+    } else {
+      setTodos([]);
+    }
   }, [])
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos))
-  }, [todos])
+  // useEffect(() => {
+  //   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos))
+  // }, [todos])
 
 
   function add() {
     const name = todoNameRef.current.value;
     
-    setTodos(prevTodos => {
-      return [...prevTodos, {id: uuidv4(), name: name, completed: false}]
-    })
-    todoNameRef.current.value = ''
+    const newTodos = [...todos, { id: uuidv4(), name: name, completed: false }]
+    setTodos(newTodos);
+    todoNameRef.current.value = '';
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newTodos))
   }
 
   function clearItems(){
     setTodos([]);
+    localStorage.removeItem('todos')
   }
 
   function toggleItem(id){
@@ -39,11 +44,18 @@ function App() {
     })
     myTodo.completed = !myTodo.completed;
     setTodos(newTodos);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newTodos))
+  }
+
+  function key(event) {
+    if (event.which === 13) {
+      add();
+    }
   }
 
   return (
     <div>
-      <input ref={todoNameRef} type="text" />
+      <input ref={todoNameRef} type="text" onKeyDown={key} />
       <button onClick={add}>Add Todo</button>
       <button onClick={clearItems}>Clear Complete</button>
       <TodoList todos={todos} toggleItem={toggleItem} />
